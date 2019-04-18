@@ -68,6 +68,56 @@ if ActiveRecord::Base.connection.supports_foreign_keys?
 
   module ActiveRecord
     class Migration
+      class ReferencesInexistantForeignKeyInCreateTest < ActiveRecord::TestCase
+        setup do
+          @connection = ActiveRecord::Base.connection
+          @connection.create_table(:younes_test001, force: true)
+        end
+
+        teardown do
+          @connection.drop_table "younes_test001", if_exists: true
+          @connection.drop_table "younes_test002", if_exists: true
+        end
+
+        class CreateYounesTest002Migration < ActiveRecord::Migration::Current
+          def up
+            create_table :younes_test002 do |t|
+              t.references :user, foreign_key: true, index: true
+              t.references :younes_test003, foreign_key: true, index: true
+            end
+          end
+
+          def down
+            drop_table :younes_test002, if_exists: true
+          end
+        end
+
+        def test_invalid_references_foreign_key_raises_activerecord_statement_invalid_exception
+          migration = CreateYounesTest002Migration.new
+          silence_stream($stdout) do
+            assert_raise(ActiveRecord::StatementInvalid) { migration.migrate(:up) }
+          end
+        ensure
+          silence_stream($stdout) { migration.migrate(:down) }
+        end
+
+        def test_invalid_references_foreign_key_raises_activerecord_statement_invalid_exception
+          migration = CreateYounesTest002Migration.new
+          begin
+            silence_stream($stdout) { migration.migrate(:up) }
+          rescue ActiveRecord::StatementInvalid => e
+            assert_match 'activerecord_unittest.younes_test003s', e.message
+          end
+        ensure
+          silence_stream($stdout) { migration.migrate(:down) }
+        end
+
+      end
+    end
+  end
+
+  module ActiveRecord
+    class Migration
       class ReferencesForeignKeyTest < ActiveRecord::TestCase
         setup do
           @connection = ActiveRecord::Base.connection
