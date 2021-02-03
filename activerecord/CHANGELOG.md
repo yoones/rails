@@ -1,3 +1,28 @@
+*   Fix incrementation of in memory counter caches when associations overlap
+
+    When two associations had a similarly named counter cache column, Active Record
+    could sometime increment the wrong one.
+
+    *Jacopo Beschi*, *Jean Boussier*
+
+*   Don't show secrets for Active Record's `Cipher::Aes256Gcm#inspect`.
+
+    Before:
+
+    ```ruby
+    ActiveRecord::Encryption::Cipher::Aes256Gcm.new(secret).inspect
+    "#<ActiveRecord::Encryption::Cipher::Aes256Gcm:0x0000000104888038 ... @secret=\"\\xAF\\bFh]LV}q\\nl\\xB2U\\xB3 ... >"
+    ```
+
+    After:
+
+    ```ruby
+    ActiveRecord::Encryption::Cipher::Aes256Gcm(secret).inspect
+    "#<ActiveRecord::Encryption::Cipher::Aes256Gcm:0x0000000104888038>"
+    ```
+
+    *Petrik de Heus*
+
 *   Bring back the historical behavior of committing transaction on non-local return.
 
     ```ruby
