@@ -1,4 +1,9 @@
-*   Add `after_discard` method
+*   Fix Active Job log message to correctly report a job failed to enqueue
+    when the adapter raises an `ActiveJob::EnqueueError`.
+
+    *Ben Sheldon*
+
+*   Add `after_discard` method.
 
     This method lets job authors define a block which will be run when a job is about to be discarded. For example:
 
