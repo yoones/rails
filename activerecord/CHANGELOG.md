@@ -1,127 +1,19 @@
-*   Change `has_secure_token` default to `on: :initialize`
+*   Fix unscope is not working in specific case
 
-    Change the new default value from `on: :create` to `on: :initialize`
-
-    Can be controlled by the `config.active_record.generate_secure_token_on`
-    configuration:
-
+    Before:
     ```ruby
-    config.active_record.generate_secure_token_on = :create
+    Post.where(id: 1...3).unscope(where: :id).to_sql # "SELECT `posts`.* FROM `posts` WHERE `posts`.`id` >= 1 AND `posts`.`id` < 3"
+
     ```
 
-    *Sean Doyle*
-
-*   Fix `change_column` not setting `precision: 6` on `datetime` columns when
-    using 7.0+ Migrations and SQLite.
-
-    *Hartley McGuire*
-
-*   Support composite identifiers in `to_key`
-
-    `to_key` avoids wrapping `#id` value into an `Array` if `#id` already an array
-
-    *Nikita Vasilevsky*
-
-*   Add validation option for `enum`
-
+    After:
     ```ruby
-    class Contract < ApplicationRecord
-      enum :status, %w[in_progress completed], validate: true
-    end
-    Contract.new(status: "unknown").valid? # => false
-    Contract.new(status: nil).valid? # => false
-    Contract.new(status: "completed").valid? # => true
-
-    class Contract < ApplicationRecord
-      enum :status, %w[in_progress completed], validate: { allow_nil: true }
-    end
-    Contract.new(status: "unknown").valid? # => false
-    Contract.new(status: nil).valid? # => true
-    Contract.new(status: "completed").valid? # => true
+    Post.where(id: 1...3).unscope(where: :id).to_sql # "SELECT `posts`.* FROM `posts`"
     ```
 
-    *Edem Topuzov*, *Ryuta Kamizono*
+    Fixes: #48094
 
-*   Allow batching methods to use already loaded relation if available
-
-    Calling batch methods on already loaded relations will use the records previously loaded instead of retrieving
-    them from the database again.
-
-    *Adam Hess*
-
-*   Deprecate `read_attribute(:id)` returning the primary key if the primary key is not `:id`.
-
-    Starting in Rails 7.2, `read_attribute(:id)` will return the value of the id column, regardless of the model's
-    primary key. To retrieve the value of the primary key, use `#id` instead. `read_attribute(:id)` for composite
-    primary key models will now return the value of the id column.
-
-    *Adrianna Chang*
-
-*   Fix `change_table` setting datetime precision for 6.1 Migrations
-
-    *Hartley McGuire*
-
-*   Fix change_column setting datetime precision for 6.1 Migrations
-
-    *Hartley McGuire*
-
-*   Add `ActiveRecord::Base#id_value` alias to access the raw value of a record's id column.
-
-    This alias is only provided for models that declare an `:id` column.
-
-    *Adrianna Chang*
-
-*   Fix previous change tracking for `ActiveRecord::Store` when using a column with JSON structured database type
-
-    Before, the methods to access the changes made during the last save `#saved_change_to_key?`, `#saved_change_to_key`, and `#key_before_last_save` did not work if the store was defined as a `store_accessor` on a column with a JSON structured database type
-
-    *Robert DiMartino*
-
-*   Fully support `NULLS [NOT] DISTINCT` for PostgreSQL 15+ indexes.
-
-    Previous work was done to allow the index to be created in a migration, but it was not
-    supported in schema.rb. Additionally, the matching for `NULLS [NOT] DISTINCT` was not
-    in the correct order, which could have resulted in inconsistent schema detection.
-
-    *Gregory Jones*
-
-*   Support decrypting data encrypted non-deterministically with a SHA1 hash digest.
-
-    This adds a new Active Record encryption option to support decrypting data encrypted
-    non-deterministically with a SHA1 hash digest:
-
-    ```
-    Rails.application.config.active_record.encryption.support_sha1_for_non_deterministic_encryption = true
-    ```
-
-    The new option addresses a problem when upgrading from 7.0 to 7.1. Due to a bug in how Active Record
-    Encryption was getting initialized, the key provider used for non-deterministic encryption were using
-    SHA-1 as its digest class, instead of the one configured globally by Rails via
-    `Rails.application.config.active_support.key_generator_hash_digest_class`.
-
-    *Cadu Ribeiro and Jorge Manrubia*
-
-*   Added PostgreSQL migration commands for enum rename, add value, and rename value.
-
-    `rename_enum` and `rename_enum_value` are reversible. Due to Postgres
-    limitation, `add_enum_value` is not reversible since you cannot delete enum
-    values. As an alternative you should drop and recreate the enum entirely.
-
-    ```ruby
-    rename_enum :article_status, to: :article_state
-    ```
-
-    ```ruby
-    add_enum_value :article_state, "archived" # will be at the end of existing values
-    add_enum_value :article_state, "in review", before: "published"
-    add_enum_value :article_state, "approved", after: "in review"
-    ```
-
-    ```ruby
-    rename_enum_value :article_state, from: "archived", to: "deleted"
-    ```
-
-    *Ray Faddis*
+    *Kazuya Hatanaka*
 
 *   Allow composite primary key to be derived from schema
 
