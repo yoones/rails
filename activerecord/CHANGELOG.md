@@ -1,20 +1,8 @@
-*   Don't show secrets for Active Record's `Cipher::Aes256Gcm#inspect`.
+*   Deprecate `name` argument on `#remove_connection`.
 
-    Before:
+    The `name` argument is deprecated on `#remove_connection` without replacement. `#remove_connection` should be called directly on the class that established the connection.
 
-    ```ruby
-    ActiveRecord::Encryption::Cipher::Aes256Gcm.new(secret).inspect
-    "#<ActiveRecord::Encryption::Cipher::Aes256Gcm:0x0000000104888038 ... @secret=\"\\xAF\\bFh]LV}q\\nl\\xB2U\\xB3 ... >"
-    ```
-
-    After:
-
-    ```ruby
-    ActiveRecord::Encryption::Cipher::Aes256Gcm(secret).inspect
-    "#<ActiveRecord::Encryption::Cipher::Aes256Gcm:0x0000000104888038>"
-    ```
-
-    *Petrik de Heus*
+    *Eileen M. Uchitelle*
 
 *   Fix has_one through singular building with inverse.
 
