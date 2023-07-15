@@ -1,27 +1,10 @@
-*   Allow escaping of literal colon characters in `sanitize_sql_*` methods when named bind variables are used
+*   Discard connections which may have been left in a transaction due to a thread being killed.
 
-    *Justin Bull*
+    If a thread is killed while in a transaction, it is possible for the connection to be reused while unexpectedly left in that transaction.
 
-*   Fix `#previously_new_record?` to return true for destroyed records.
+    Connections are now discarded in this case.
 
-    Before, if a record was created and then destroyed, `#previously_new_record?` would return true.
-    Now, any UPDATE or DELETE to a record is considered a change, and will result in `#previously_new_record?`
-    returning false.
-
-    *Adrianna Chang*
-
-*   Specify callback in `has_secure_token`
-
-    ```ruby
-    class User < ApplicationRecord
-      has_secure_token on: :initialize
-    end
-
-    User.new.token # => "abc123...."
-    ```
-
-    *Sean Doyle*
-
+    *Nick Dower*
 *   Fix incrementation of in memory counter caches when associations overlap
 
     When two associations had a similarly named counter cache column, Active Record
