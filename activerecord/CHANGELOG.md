@@ -1149,7 +1149,7 @@
 
     *Adrianna Chang*
 
-*   Add `expires_in` option to `signed_id`.
+*   Add `expires_at` option to `signed_id`.
 
     *Shouichi Kamiya*
 
