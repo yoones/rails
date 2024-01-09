@@ -1,18 +1,6 @@
-*   Make `schema_dump`, `query_cache`, `replica` and `database_tasks` configurable via `DATABASE_URL`
+*   Add `<role>_types` class method to `ActiveRecord::DelegatedType` so that the delegated types can be instrospected
 
-    This wouldn't always work previously because boolean values would be interpreted as strings.
-
-    e.g. `DATABASE_URL=postgres://localhost/foo?schema_dump=false` now properly disable dumping the schema
-    cache.
-
-    *Mike Coutermarsh*, *Jean Boussier*
-
-*   Introduce `ActiveRecord::Transactions::ClassMethods#set_callback`
-
-     It is identical to `ActiveSupport::Callbacks::ClassMethods#set_callback`
-     but with support for `after_commit` and `after_rollback` callback options.
-
-    *Joshua Young*
+    *JP Rosevear*
 
 *   Make `ActiveRecord::Encryption::Encryptor` agnostic of the serialization format used for encrypted data.
 
